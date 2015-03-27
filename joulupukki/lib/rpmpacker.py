@@ -28,7 +28,9 @@ class RpmPacker(Packer):
                                       'sources',
                                        self.config['root_folder'],
                                        self.config['spec'])
-
+        if not os.path.isfile(spec_file_path):
+            self.logger.error("Spec file not found: %s", spec_file_path)
+            return False
         # Prepare datas
         self.config['deps'] = self.config.get('deps', [])
         self.config['deps_pip'] = self.config.get('deps_pip', [])
@@ -47,7 +49,11 @@ class RpmPacker(Packer):
                    1049: 'deps',
                    1018: 'sources',
                   }
-        spec = rpm.ts().parseSpec(spec_file_path)
+        try:
+            spec = rpm.ts().parseSpec(spec_file_path)
+        except Exception as exp:
+            self.logger.error("Error parsing spec file (%s): %s", spec_file_path, exp)
+            return False
         # Get spec data
         for id_, attr_name in mapping.items():
             if isinstance(self.config.get(attr_name), list):
