@@ -79,10 +79,11 @@ class DebPacker(Packer):
         # DOCKER FILE TEMPLATE
         # Create and user an user "builder"
         dockerfile = '''
-        FROM %s
-        RUN apt-get update && ( apt-get upgrade -y || apt-get upgrade -y || apt-get upgrade -y ))
+        FROM %(distro)s
+        RUN apt-get update
+        RUN apt-get upgrade -y
         RUN apt-get install -y devscripts debianutils debhelper build-essential tar rsync
-        ''' % self.distro
+        ''' % self.config
         f = BytesIO(dockerfile.encode('utf-8'))
 
         # BUILD

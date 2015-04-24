@@ -79,10 +79,10 @@ class RpmPacker(Packer):
         # DOCKER FILE TEMPLATE
         # Create and user an user "builder"
         dockerfile= '''
-        FROM %s
+        FROM %(distro)s
         RUN yum upgrade -y
         RUN yum install rpm-build tar rsync -y
-        ''' % self.distro
+        ''' % self.config
         f = BytesIO(dockerfile.encode('utf-8'))
 
         # BUILD
@@ -165,9 +165,6 @@ class RpmPacker(Packer):
         # RUN
         self.logger.info("RPM Build starting")
         start_time = timeit.default_timer()
-        self.logger.debug(self.container_tag)
-        self.logger.debug(command)
-        self.logger.debug(volumes)
         self.container = self.cli.create_container(self.container_tag, command=command, volumes=volumes)
         local_source_folder = os.path.join(self.folder, "sources")
         binds[local_source_folder] = {"bind": "/upstream", "ro": True}

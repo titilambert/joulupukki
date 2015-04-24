@@ -1,13 +1,13 @@
 # Server Specific Configurations
 server = {
-    'port': '8081',
+    'port': '8083',
     'host': '0.0.0.0'
 }
 
 # Pecan Application Configurations
 app = {
-    'root': 'joulupukki.api.controllers.root.RootController',
-    'modules': ['joulupukki.api'],
+    'root': 'joulupukki.dispatcher.controllers.root.RootController',
+    'modules': ['joulupukki.dispatcher'],
     'static_root': '%(confdir)s/public',
     'template_path': '%(confdir)s/joulupukki/templates',
     'debug': True,
