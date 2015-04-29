@@ -105,14 +105,17 @@ class Job(APIJob):
 
     def get_folder_output(self):
         """ Return build folder path"""
-        distro = reverse_supported_distros.get(self.distro, self.distro)
+        if self.distro != "osx":
+            self.distro = reverse_supported_distros.get(self.distro, self.distro)
+        else:
+            self.distro = "osx"
         return os.path.join(pecan.conf.workspace_path,
                             self.username,
                             self.project_name,
                             "builds",
                             str(self.build_id),
                             "output",
-                            distro,
+                            self.distro,
                             )
 
     def get_folder_path(self):

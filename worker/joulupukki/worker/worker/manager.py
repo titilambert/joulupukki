@@ -1,4 +1,4 @@
-
+import os
 import logging
 
 import pecan
@@ -8,12 +8,13 @@ from threading import Thread
 
 from joulupukki.worker.worker.builder import Builder
 from joulupukki.worker.worker.docker_builder import DockerBuilder
+from joulupukki.worker.worker.osx_builder import OsxBuilder
 from joulupukki.common.datamodel.build import Build
 from joulupukki.common.datamodel.project import Project
 from joulupukki.common.datamodel.user import User
 
 
-from joulupukki.common.logger import get_logger_from_path
+from joulupukki.common.logger import get_logger_path, get_logger
 from joulupukki.common.carrier import Carrier
 
 
@@ -23,8 +24,14 @@ class Manager(Thread):
         self.must_run = False
         self.app = app
         self.build_list = {}
-        self.carrier = Carrier(pecan.conf.rabbit_server,
-                               pecan.conf.rabbit_port, pecan.conf.rabbit_db)
+        self.carrier = Carrier(
+            pecan.conf.rabbit_server,
+            pecan.conf.rabbit_port,
+            pecan.conf.rabbit_user,
+            pecan.conf.rabbit_password,
+            pecan.conf.rabbit_vhost,
+            pecan.conf.rabbit_db
+        )
         self.supported_build_type = pecan.conf.supported_build_type
         for build_type in self.supported_build_type:
             self.carrier.declare_queue('%s.queue' % build_type)
@@ -50,11 +57,10 @@ class Manager(Thread):
                     distro_name = new_build['distro_name']
                     build_conf = new_build['build_conf']
                     root_folder = new_build['root_folder']
-                    self.logger = get_logger_from_path(
-                        new_build['log_path'],
-                        new_build['id_'],
-                    )
                     build = Build(new_build['build'])
+                    path = os.path.dirname(get_logger_path(build))
+                    os.makedirs(path)
+                    self.logger = get_logger(build, distro_name)
                     self.logger.debug(build.dumps())
                     self.logger.debug("test")
                     builder_class = globals().get(build_type.title() + 'Builder')
