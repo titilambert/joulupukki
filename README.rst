@@ -1,3 +1,5 @@
+Project moved here: https://github.com/jlpk
+
 ==========
 Joulupukki
 ==========
